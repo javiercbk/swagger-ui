@@ -35,6 +35,9 @@ describe("<Models/>", function(){
     getConfigs: () => ({
       docExpansion: "list",
       defaultModelsExpandDepth: 0
+    }),
+    spec: () => ({
+      get: () => null
     })
   }
 

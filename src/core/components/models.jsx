@@ -9,7 +9,8 @@ export default class Models extends Component {
     specActions: PropTypes.object.isRequired,
     layoutSelectors: PropTypes.object,
     layoutActions: PropTypes.object,
-    getConfigs: PropTypes.func.isRequired
+    getConfigs: PropTypes.func.isRequired,
+    spec: PropTypes.func.isRequired
   }
 
   getSchemaBasePath = () => {
@@ -43,8 +44,27 @@ export default class Models extends Component {
   }
 
   render(){
-    let { specSelectors, getComponent, layoutSelectors, layoutActions, getConfigs } = this.props
+    let { specSelectors, getComponent, layoutSelectors, layoutActions, getConfigs, spec } = this.props
     let definitions = specSelectors.definitions()
+    let done = false
+    const subtrees = spec().get("resolvedSubtrees")
+    if (subtrees) {
+      const paths = subtrees.get("paths")
+      if (paths) {
+        const iter = paths.keys()
+        do {
+          const iterRes = iter.next()
+          const { value } = iterRes
+          if (value) {
+            const c = paths.get(value).get("components")
+            if (c) {
+              definitions = definitions.mergeDeep(c.get("schemas"))
+            }
+          }
+          done = iterRes.done
+        } while (!done)
+      }
+    }
     let { docExpansion, defaultModelsExpandDepth } = getConfigs()
     if (!definitions.size || defaultModelsExpandDepth < 0) return null
 
